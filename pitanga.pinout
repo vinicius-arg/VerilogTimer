@@ -1,0 +1,54 @@
+// Descrição : Arquivo de pinagem para a placa S.
+    clk = clk_1hz;
+    stc = btn0; // trocar unidade de horário
+    inc = btn1; // ajustar unidade
+    run = btn2; // pause/despause
+    blk = segd2.dp_on;
+
+// Mapeamento leds
+    led[0] = led0;
+    led[1] = led1;
+    led[2] = led2;
+    led[3] = led3;
+    led[4] = led4;
+    led[5] = led5;
+    led[6] = led6;
+    led[7] = led7;
+    led[8] = led8;
+    led[9] = led9;
+
+// Mapeamento para o decodificador para o display de 7 segmentos segd0
+    seg0[0] = segd0.g_on;
+    seg0[1] = segd0.f_on;
+    seg0[2] = segd0.e_on;
+    seg0[3] = segd0.d_on;
+    seg0[4] = segd0.c_on;
+    seg0[5] = segd0.b_on;
+    seg0[6] = segd0.a_on;
+
+// Mapeamento para o decodificador para o display de 7 segmentos segd1
+    seg1[0] = segd1.g_on;
+    seg1[1] = segd1.f_on;
+    seg1[2] = segd1.e_on;
+    seg1[3] = segd1.d_on;
+    seg1[4] = segd1.c_on;
+    seg1[5] = segd1.b_on;
+    seg1[6] = segd1.a_on;
+
+// Mapeamento para o decodificador para o display de 7 segmentos segd2
+    seg2[0] = segd2.g_on;
+    seg2[1] = segd2.f_on;
+    seg2[2] = segd2.e_on;
+    seg2[3] = segd2.d_on;
+    seg2[4] = segd2.c_on;
+    seg2[5] = segd2.b_on;
+    seg2[6] = segd2.a_on;
+
+// Mapeamento para o decodificador para o display de 7 segmentos segd3
+    seg3[0] = segd3.g_on;
+    seg3[1] = segd3.f_on;
+    seg3[2] = segd3.e_on;
+    seg3[3] = segd3.d_on;
+    seg3[4] = segd3.c_on;
+    seg3[5] = segd3.b_on;
+    seg3[6] = segd3.a_on;
