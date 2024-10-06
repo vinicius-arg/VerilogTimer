@@ -1,5 +1,5 @@
 // Descrição : Arquivo de pinagem para a placa S.
-    clk = clk_3hz;
+    clk = clk_1hz;
     stc = btn0; // trocar unidade de horário
     inc = btn1; // ajustar unidade
     run = btn2; // pause/despause
