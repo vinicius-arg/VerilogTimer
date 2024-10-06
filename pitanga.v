@@ -35,53 +35,63 @@ module counter(clk, stc, inc, run, sw, blk, seg0, seg1, seg2, seg3, led);
     localparam TRUE = 1'b1;
 
     // piscadinhas
-    reg blink_sec;
-    reg blink_min;
-    reg blink_hour;
+    reg blk_sec;
+    reg blk_min;
+    reg blk_hour;
 
-    // Bloco de controle
+    // Faz piscar a unidade escolhida baseando-se em current
     always@(posedge clk) begin
-        blink_sec <= FALSE;
-        blink_min <= FALSE;
-        blink_hour <= FALSE;
+        blk_sec <= FALSE;
+        blk_min <= FALSE;
+        blk_hour <= FALSE;
 
+        if (stc && state == STATE_PAUSE) begin
+            case (current + 2'b01)
+                SELECTED_NONE: begin
+                    // piscadinha total
+                    blk_sec <= TRUE;
+                    blk_min <= TRUE;
+                    blk_hour <= TRUE;
+                end 
+                SELECTED_SEC: blk_sec <= TRUE;
+                SELECTED_MIN: blk_min <= TRUE; // certo
+                SELECTED_HOUR: blk_hour <= TRUE; // certo
+            endcase
+        end else if (state == STATE_FINISHED) begin
+            // piscadinha total
+            blk_sec <= TRUE;
+            blk_min <= TRUE;
+            blk_hour <= TRUE;
+        end
+    end
+
+    // Bloco de controle principal
+    always@(posedge clk) begin
         case (state)
             STATE_IDLE: begin// estado inicial
-                cnt_hour <= 5'b00001;
+                cnt_hour <= 5'b00000;
                 cnt_min <= 6'b000000;
                 cnt_sec <= 6'b000000;
-                current <= SELECTED_SEC; // estado de ajuste
+                current <= SELECTED_NONE; // estado de ajuste
                 state <= STATE_PAUSE; // seta estado pausado para ajustes
             end
             STATE_PAUSE: begin // estado de ajustes
                 blk <= 1'b1;
                 if (stc) begin // troca de unidades
                     current <= current + 1;
-                    // faz piscar a unidade escolhida
-                    case (current)
-                        SELECTED_SEC: blink_sec <= TRUE;
-                        SELECTED_MIN: blink_min <= TRUE;
-                        SELECTED_HOUR: blink_hour <= TRUE;
-                    endcase
                 end else if (inc) begin // incremento
                     case (current)
                         SELECTED_SEC: begin
-                            if (!sw)
-                                cnt_sec <= cnt_sec + 1;
-                            else 
-                                cnt_sec <= cnt_sec - 1;
+                            if (!sw) cnt_sec <= cnt_sec + 1;
+                            else  cnt_sec <= cnt_sec - 1;
                         end
                         SELECTED_MIN: begin
-                            if (!sw)
-                                cnt_min <= cnt_min + 1;
-                            else 
-                                cnt_min <= cnt_min - 1;
+                            if (!sw) cnt_min <= cnt_min + 1;
+                            else cnt_min <= cnt_min - 1;
                         end
                         SELECTED_HOUR: begin
-                            if (!sw)
-                                cnt_hour <= cnt_hour + 1;
-                            else
-                                cnt_hour <= cnt_hour - 1;
+                            if (!sw) cnt_hour <= cnt_hour + 1;
+                            else cnt_hour <= cnt_hour - 1;
                         end
                     endcase
                 end else if (current == SELECTED_NONE && run) // avanço de estado
@@ -118,10 +128,7 @@ module counter(clk, stc, inc, run, sw, blk, seg0, seg1, seg2, seg3, led);
             end
             STATE_FINISHED: begin // fim da contagem
                 blk <= 1'b0;
-                // piscadinha total
-                blink_sec <= TRUE;
-                blink_min <= TRUE;
-                blink_hour <= TRUE;
+                state <= STATE_IDLE;
             end
         endcase
     end
@@ -130,37 +137,37 @@ module counter(clk, stc, inc, run, sw, blk, seg0, seg1, seg2, seg3, led);
     lights_on sec(
         .count(cnt_sec),
         .leds_on(led),
-        .blink(blink_sec)
+        .blk(blk_sec)
     );
     // exibição no display (minutos)
     display_hhmm min(
         .count(cnt_min),
         .display_d(seg1),
         .display_u(seg0),
-        .blink(blink_min)
+        .blk(blk_min)
     );
     // exibição no display (horas)
     display_hhmm hour(
         .count(cnt_hour),
         .display_d(seg3),
         .display_u(seg2),
-        .blink(blink_hour)
+        .blk(blk_hour)
     );
 endmodule:counter
 
-module display_hhmm(count, display_d, display_u, blink);
+module display_hhmm(count, display_d, display_u, blk);
     input [5:0] count;
     output [6:0] display_d;
     output [6:0] display_u;
-    input blink;
+    input blk;
 
     reg [3:0] dezenas;
     reg [3:0] unidades;
 
     // contador separado em dezenas e unidades
     always @(*) begin
-        dezenas = (blink) ? (4'b1010) : count / 10;
-        unidades = (blink) ? (4'b1010) : count % 10;
+        dezenas = (blk) ? (4'b1010) : count / 10;
+        unidades = (blk) ? (4'b1010) : count % 10;
     end
 
     // exibições nos displays
@@ -175,19 +182,19 @@ module display_hhmm(count, display_d, display_u, blink);
     );
 endmodule:display_hhmm
 
-module lights_on(count, leds_on, blink);
+module lights_on(count, leds_on, blk);
     input [5:0] count;
     output reg [9:0] leds_on;
-    input blink;
+    input blk;
     
     reg [3:0] unidades;
     reg [3:0] dezenas;
 
     // contador separado em dezenas e unidades
     always @(*) begin
-        dezenas = (blink) ? 
+        dezenas = (blk) ? 
             ((!count) ? 4'b1111 : 4'b0000) : count / 10;
-        unidades = (blink) ? 
+        unidades = (blk) ? 
             ((!count) ? 4'b1111 : 4'b0000) : count % 10;
     end
 
